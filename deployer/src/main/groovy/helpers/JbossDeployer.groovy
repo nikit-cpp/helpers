@@ -104,6 +104,10 @@ public class JbossDeployer {
         return "undeploy ${nameInWildfly}"
     }
 
+    String escape(String file){
+        return file.replace(" ", "\\ ")
+    }
+
     void deploy(File artifact) {
         String runtimeName
         String displayName
@@ -118,6 +122,8 @@ public class JbossDeployer {
 
         String canonicalPath = artifact.canonicalPath
         println "Deploying ${displayName} [${canonicalPath}]..."
+
+        canonicalPath = escape(canonicalPath)
 
         if(server.domain){
             def deployCommand = commonCommand.collect()
@@ -154,6 +160,8 @@ public class JbossDeployer {
         } else {
             displayName = artifact.name
         }
+
+        displayName = escape(displayName)
 
         println "Undeploying ${displayName} ..."
         def undeployCommand = commonCommand.collect()
