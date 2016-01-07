@@ -97,15 +97,11 @@ public class JbossDeployer {
     }
 
     String getStandaloneDeployCommand(String pathToArtifact, String nameInWildfly, String runtimeName){
-        return "deploy ${pathToArtifact} --force --name=${nameInWildfly} --runtime-name=${runtimeName}"
+        return "deploy \"${pathToArtifact}\" --force --name=${nameInWildfly} --runtime-name=${runtimeName}"
     }
 
     String getStandaloneUndeployCommand(String nameInWildfly){
         return "undeploy ${nameInWildfly}"
-    }
-
-    String escape(String file){
-        return file.replace(" ", "\\ ")
     }
 
     void deploy(File artifact) {
@@ -122,8 +118,6 @@ public class JbossDeployer {
 
         String canonicalPath = artifact.canonicalPath
         println "Deploying ${displayName} [${canonicalPath}]..."
-
-        canonicalPath = escape(canonicalPath)
 
         if(server.domain){
             def deployCommand = commonCommand.collect()
@@ -148,8 +142,14 @@ public class JbossDeployer {
             Executor.execute(commandWithArgs: addToGroupCommand, workingDirectory: jBossBin)
         } else {
             def deployList = commonCommand.collect()
-            deployList.add("--command=${getStandaloneDeployCommand(canonicalPath, displayName, runtimeName)}")
-            Executor.execute(commandWithArgs: deployList, workingDirectory: jBossBin)
+            //deployList.add("--command=${getStandaloneDeployCommand(canonicalPath, displayName, runtimeName)}")
+
+            String input = getStandaloneDeployCommand(canonicalPath, displayName, runtimeName);
+            input +="\n"
+            input +="exit"
+            input +="\n"
+
+            Executor.execute(commandWithArgs: deployList, workingDirectory: jBossBin, toProcessInput:input)
         }
     }
 
@@ -160,8 +160,6 @@ public class JbossDeployer {
         } else {
             displayName = artifact.name
         }
-
-        displayName = escape(displayName)
 
         println "Undeploying ${displayName} ..."
         def undeployCommand = commonCommand.collect()
