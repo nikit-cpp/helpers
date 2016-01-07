@@ -89,7 +89,7 @@ public class JbossDeployer {
     }
 
     String getDomainDeployCommand(String pathToArtifact, String nameInWildfly, String runtimeName){
-        return "deploy ${pathToArtifact} --disabled --name=${nameInWildfly} --runtime-name=${runtimeName}"
+        return "deploy \"${pathToArtifact}\" --disabled --name=${nameInWildfly} --runtime-name=${runtimeName}"
     }
 
     String getDomainAddToGroupCommand(String nameInWildfly, String serverGroupNames){
@@ -120,11 +120,10 @@ public class JbossDeployer {
         println "Deploying ${displayName} [${canonicalPath}]..."
 
         if(server.domain){
-            def deployCommand = commonCommand.collect()
-            deployCommand.add("--command=${getDomainDeployCommand(canonicalPath, displayName, runtimeName)}")
-            Executor.execute(commandWithArgs: deployCommand, workingDirectory: jBossBin)
+            Executor.execute(commandWithArgs: commonCommand.collect(), workingDirectory: jBossBin, toProcessInput:
+                    new JbossCliBuilder().add(getDomainDeployCommand(canonicalPath, displayName, runtimeName)).exit().build()
+            )
 
-            def addToGroupCommand = commonCommand.collect()
             if (serverGroups.size()==0){
                 serverGroups << "main-server-group"
             }
@@ -137,19 +136,15 @@ public class JbossDeployer {
                 allServerGroups += serverGroup
                 ++i
             }
-            addToGroupCommand.add("--command=${getDomainAddToGroupCommand(displayName, allServerGroups)}")
             println "Adding ${displayName} to groups [${allServerGroups}]..."
-            Executor.execute(commandWithArgs: addToGroupCommand, workingDirectory: jBossBin)
+
+            Executor.execute(commandWithArgs: commonCommand.collect(), workingDirectory: jBossBin, toProcessInput:
+                    new JbossCliBuilder().add(getDomainAddToGroupCommand(displayName, allServerGroups)).exit().build()
+            )
         } else {
-            def deployList = commonCommand.collect()
-            //deployList.add("--command=${getStandaloneDeployCommand(canonicalPath, displayName, runtimeName)}")
-
-            String input = getStandaloneDeployCommand(canonicalPath, displayName, runtimeName);
-            input +="\n"
-            input +="exit"
-            input +="\n"
-
-            Executor.execute(commandWithArgs: deployList, workingDirectory: jBossBin, toProcessInput:input)
+            Executor.execute(commandWithArgs: commonCommand.collect(), workingDirectory: jBossBin, toProcessInput:
+                    new JbossCliBuilder().add(getStandaloneDeployCommand(canonicalPath, displayName, runtimeName)).exit().build()
+            )
         }
     }
 
@@ -162,13 +157,15 @@ public class JbossDeployer {
         }
 
         println "Undeploying ${displayName} ..."
-        def undeployCommand = commonCommand.collect()
         if(server.domain){
-            undeployCommand.add("--command=${getDomainUndeployCommand(displayName)}")
+            Executor.execute(commandWithArgs: commonCommand.collect(), workingDirectory: jBossBin, toProcessInput:
+                    new JbossCliBuilder().add(getDomainUndeployCommand(displayName)).exit().build()
+            )
         } else {
-            undeployCommand.add("--command=${getStandaloneUndeployCommand(displayName)}")
+            Executor.execute(commandWithArgs: commonCommand.collect(), workingDirectory: jBossBin, toProcessInput:
+                    new JbossCliBuilder().add(getStandaloneUndeployCommand(displayName)).exit().build()
+            )
         }
-        Executor.execute(commandWithArgs: undeployCommand, workingDirectory: jBossBin)
     }
 
     void deployList() {
@@ -187,6 +184,32 @@ public class JbossDeployer {
                     throw e
                 }
             }
+        }
+    }
+
+    class JbossCliBuilder {
+
+        String command = ""
+
+        JbossCliBuilder enter(){
+            command += "\n"
+            this
+        }
+
+        JbossCliBuilder add(String cmd){
+            command += cmd
+            enter()
+            this
+        }
+
+        JbossCliBuilder exit(){
+            command += "exit"
+            enter()
+            this
+        }
+
+        String build(){
+            return command
         }
     }
 }
