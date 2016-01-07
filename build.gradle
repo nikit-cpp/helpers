@@ -1,0 +1,30 @@
+apply plugin: 'maven'
+
+subprojects {
+    apply plugin: 'java'
+	apply plugin: 'groovy'
+	apply plugin: 'maven'
+
+    project.group = 'com.github.nikit.cpp.helpers'
+	project.version = "1.1"
+
+	[ compileJava, compileTestJava ]*.options*.encoding = 'UTF-8'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+    
+	def props = new Properties()
+    props.load(new FileInputStream('credentials.properties'))
+    	
+	uploadArchives {
+		repositories {
+			mavenDeployer {
+				repository(url: "https://api.bintray.com/maven/nikit007/mvn-repo/helpers/;publish=1") {
+					authentication(userName: props.mavenUser, password: props.mavenPassword)
+				}
+			}
+		}
+	}
+}
