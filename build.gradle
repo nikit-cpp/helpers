@@ -6,7 +6,7 @@ subprojects {
 	apply plugin: 'maven'
 
     project.group = 'com.github.nikit.cpp.helpers'
-	project.version = "1.0"
+	project.version = "1.0.1"
 
 	[ compileJava, compileTestJava ]*.options*.encoding = 'UTF-8'
 

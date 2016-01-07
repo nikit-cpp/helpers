@@ -131,7 +131,7 @@ public class JbossDeployer {
             String allServerGroups = ""
             int i=0
             for (String serverGroup : serverGroups) {
-                if(i==1){
+                if(i>0){
                     allServerGroups += ","
                 }
                 allServerGroups += serverGroup
