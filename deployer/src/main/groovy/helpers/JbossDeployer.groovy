@@ -12,15 +12,15 @@ public class JbossDeployer {
      * @param createWilfdlyNameClosure замыкание, прнимающее файл артифакта "/path/to/jar-0.1.jar" и делающее из него
      * Wildfly displayName и runtimeName
      */
-    public JbossDeployer(Server server, String jbossHome=null, Closure createArtifactNamesClosure=null) {
-        jbossHome = (jbossHome==null ? getSystemJbossHome() : jbossHome)
+    public JbossDeployer(Server server, String jbossHome = null, Closure createArtifactNamesClosure = null) {
+        jbossHome = (jbossHome == null ? getSystemJbossHome() : jbossHome)
 
         File jBossModules = new File(jbossHome, "jboss-modules.jar")
         File jbossModulesPath = new File(jbossHome, "modules")
 
         jBossBin = new File(jbossHome, 'bin')
 
-        if (server.local){
+        if (server.local) {
             commonCommand = [
                     'java',
                     "-Dlogging.configuration=file:${new File(jBossBin, 'jboss-cli-logging.properties').absolutePath}",
@@ -50,7 +50,7 @@ public class JbossDeployer {
         this.server = server
         this.createArtifactNamesClosure = createArtifactNamesClosure
 
-        println "Initialized JbossDeployer : ${server.domain?'domain':'standalone'}, ${server.local?'local':'remote ' + server.hostname}"
+        println "Initialized JbossDeployer : ${server.domain ? 'domain' : 'standalone'}, ${server.local ? 'local' : 'remote ' + server.hostname}"
     }
 
     AbstractExecutor executor = new Executor()
@@ -86,27 +86,27 @@ public class JbossDeployer {
     }
 
 
-    String getDomainUndeployCommand(String nameInWildfly){
+    String getDomainUndeployCommand(String nameInWildfly) {
         return "undeploy ${nameInWildfly} --all-relevant-server-groups"
     }
 
-    String getDomainDeployCommand(String pathToArtifact, String nameInWildfly, String runtimeName){
+    String getDomainDeployCommand(String pathToArtifact, String nameInWildfly, String runtimeName) {
         return "deploy ${pathToArtifact} --disabled --name=${nameInWildfly} --runtime-name=${runtimeName}"
     }
 
-    String getDomainAddToGroupCommand(String nameInWildfly, String serverGroupNames){
+    String getDomainAddToGroupCommand(String nameInWildfly, String serverGroupNames) {
         return "deploy --name=${nameInWildfly} --server-groups=${serverGroupNames}"
     }
 
-    String getStandaloneDeployCommand(String pathToArtifact, String nameInWildfly, String runtimeName){
+    String getStandaloneDeployCommand(String pathToArtifact, String nameInWildfly, String runtimeName) {
         return "deploy ${pathToArtifact} --force --name=${nameInWildfly} --runtime-name=${runtimeName}"
     }
 
-    String getStandaloneUndeployCommand(String nameInWildfly){
+    String getStandaloneUndeployCommand(String nameInWildfly) {
         return "undeploy ${nameInWildfly}"
     }
 
-    String escape(String file){
+    String escape(String file) {
         return file.replace(" ", "\\ ")
     }
 
@@ -114,7 +114,7 @@ public class JbossDeployer {
         String runtimeName
         String displayName
         List<String> serverGroups = server.domainServerGroups.collect() // копируем список
-        if (null!=createArtifactNamesClosure) {
+        if (null != createArtifactNamesClosure) {
             runtimeName = createArtifactNamesClosure(artifact).runtimeName
             displayName = createArtifactNamesClosure(artifact).displayName
         } else {
@@ -127,19 +127,19 @@ public class JbossDeployer {
 
         canonicalPath = escape(canonicalPath)
 
-        if(server.domain){
+        if (server.domain) {
             def deployCommand = commonCommand.collect()
             deployCommand.add("--command=${getDomainDeployCommand(canonicalPath, displayName, runtimeName)}")
             executor.execute(commandWithArgs: deployCommand, workingDirectory: jBossBin)
 
             def addToGroupCommand = commonCommand.collect()
-            if (serverGroups.size()==0){
+            if (serverGroups.size() == 0) {
                 serverGroups << "main-server-group"
             }
             String allServerGroups = ""
-            int i=0
+            int i = 0
             for (String serverGroup : serverGroups) {
-                if(i>0){
+                if (i > 0) {
                     allServerGroups += ","
                 }
                 allServerGroups += serverGroup
@@ -157,7 +157,7 @@ public class JbossDeployer {
 
     void undeploy(File artifact) {
         String displayName
-        if (null!=createArtifactNamesClosure) {
+        if (null != createArtifactNamesClosure) {
             displayName = createArtifactNamesClosure(artifact).displayName
         } else {
             displayName = artifact.name
@@ -167,7 +167,7 @@ public class JbossDeployer {
 
         println "Undeploying ${displayName} ..."
         def undeployCommand = commonCommand.collect()
-        if(server.domain){
+        if (server.domain) {
             undeployCommand.add("--command=${getDomainUndeployCommand(displayName)}")
         } else {
             undeployCommand.add("--command=${getStandaloneUndeployCommand(displayName)}")
@@ -176,17 +176,17 @@ public class JbossDeployer {
     }
 
     void deployList() {
-        for(File f: listToDeploy) {
+        for (File f : listToDeploy) {
             deploy(f)
         }
     }
 
     void undeployList(boolean ignoreErrors = true) {
-        for(int i = listToDeploy.size()-1; i >= 0 ; --i) {
-            File f=listToDeploy.get(i)
+        for (int i = listToDeploy.size() - 1; i >= 0; --i) {
+            File f = listToDeploy.get(i)
             try {
                 undeploy(f)
-            } catch (Exception e){
+            } catch (Exception e) {
                 if (!ignoreErrors) {
                     throw e
                 }

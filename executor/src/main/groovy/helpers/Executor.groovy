@@ -17,7 +17,7 @@ class Executor extends AbstractExecutor {
 
         Process process = pb.start()
 
-        if(null!=toProcessInput) {
+        if (null != toProcessInput) {
             def inputToProcess = process.outputStream
             inputToProcess.write(toProcessInput.getBytes(StandardCharsets.UTF_8))
             inputToProcess.flush()
@@ -29,7 +29,7 @@ class Executor extends AbstractExecutor {
         process.consumeProcessOutput(System.out, System.err)
         int exitCode = process.waitFor()
 
-        if(0 != exitCode) {
+        if (0 != exitCode) {
             throw new Exception("Exitcode:" + exitCode + " StdIn:" + process.in.text + " StdErr:" + process.err.text)
         }
         return exitCode

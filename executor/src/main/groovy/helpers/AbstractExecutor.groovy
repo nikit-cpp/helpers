@@ -8,5 +8,6 @@ abstract class AbstractExecutor {
         return execute(args.commandWithArgs, args.inputSource, args.workingDirectory, args.toProcessInput)
     }
 
-    public abstract int execute(List<String> commandWithArgs, File inputSource, File workingDirectory, String toProcessInput)
+    public
+    abstract int execute(List<String> commandWithArgs, File inputSource, File workingDirectory, String toProcessInput)
 }

@@ -2,31 +2,31 @@ apply plugin: 'maven'
 
 subprojects {
     apply plugin: 'java'
-	apply plugin: 'groovy'
-	apply plugin: 'maven'
+    apply plugin: 'groovy'
+    apply plugin: 'maven'
 
     project.group = 'com.github.nikit.cpp.helpers'
-	project.version = "1.0.3"
+    project.version = "1.0.3"
 
-	[ compileJava, compileTestJava ]*.options*.encoding = 'UTF-8'
+    [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
     repositories {
         mavenLocal()
         mavenCentral()
     }
 
-	def props = new Properties()
-	if(new File (project.projectDir, 'credentials.properties').exists()){
-		props.load(new FileInputStream('credentials.properties'))
-	}
-	uploadArchives {
-		repositories {
-			mavenDeployer {
-				repository(url: "https://api.bintray.com/maven/nikit007/mvn-repo/helpers/;publish=1") {
-					authentication(userName: props.mavenUser, password: props.mavenPassword)
-				}
-			}
-		}
-	}
+    def props = new Properties()
+    if (new File(project.projectDir, 'credentials.properties').exists()) {
+        props.load(new FileInputStream('credentials.properties'))
+    }
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                repository(url: "https://api.bintray.com/maven/nikit007/mvn-repo/helpers/;publish=1") {
+                    authentication(userName: props.mavenUser, password: props.mavenPassword)
+                }
+            }
+        }
+    }
 }
 
