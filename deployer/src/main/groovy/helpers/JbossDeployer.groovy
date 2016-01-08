@@ -1,6 +1,7 @@
 package helpers
 
 import org.apache.commons.io.FileUtils
+import org.apache.commons.lang3.SystemUtils
 
 public class JbossDeployer {
 
@@ -107,7 +108,11 @@ public class JbossDeployer {
     }
 
     String escape(String file) {
-        return file.replace(" ", "\\ ")
+        if (SystemUtils.IS_OS_WINDOWS){
+            return "\"${file}\""
+        } else {
+            return file.replace(" ", "\\ ")
+        }
     }
 
     void deploy(File artifact) {
