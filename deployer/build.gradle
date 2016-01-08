@@ -6,8 +6,6 @@ dependencies {
 
     testCompile 'org.testng:testng:6.9.4'
     testCompile 'org.testinfected.hamcrest-matchers:core-matchers:1.8'
-    //testCompile 'junit:junit:4.12'
-
 }
 
 test {

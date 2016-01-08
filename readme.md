@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/nikit-cpp/helpers.svg)](https://travis-ci.org/nikit-cpp/helpers)
+
 As possible variant of usage, you can to write for example next stresstest:
 
 ```
