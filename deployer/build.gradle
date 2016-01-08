@@ -3,12 +3,12 @@ dependencies {
     compile 'commons-io:commons-io:2.4'
     compile project(':executor')
 
-    //testCompile 'org.testng:testng:6.9.4'
-    testCompile 'junit:junit:4.12'
+    testCompile 'org.testng:testng:6.9.4'
+    //testCompile 'junit:junit:4.12'
 
 }
 
-/*test {
+test {
     // enable TestNG support (default is JUnit)
     useTestNG()
-}*/
+}

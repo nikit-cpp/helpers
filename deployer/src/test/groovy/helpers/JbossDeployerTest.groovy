@@ -1,9 +1,9 @@
 package helpers
 
-import org.junit.Test
+//import org.junit.Test
 
-//import org.testng.Assert
-//import org.testng.annotations.Test
+import org.testng.Assert
+import org.testng.annotations.Test
 
 /**
  * Created by nik on 08.01.16.
