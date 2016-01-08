@@ -22,7 +22,7 @@ subprojects {
     uploadArchives {
         repositories {
             mavenDeployer {
-                repository(url: "https://api.bintray.com/maven/nikit007/mvn-repo/helpers/;publish=1") {
+                repository(url: props.mavenUrl) {
                     authentication(userName: props.mavenUser, password: props.mavenPassword)
                 }
             }
