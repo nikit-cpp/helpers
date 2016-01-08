@@ -1,7 +1,5 @@
 package helpers
 
-//import org.junit.Test
-
 import org.testng.Assert
 import org.testng.annotations.Test
 
@@ -10,26 +8,144 @@ import org.testng.annotations.Test
  */
 class JbossDeployerTest {
 
-    List<String> commandWithArgs
-
     @Test
-    void testDeploy() {
-        JbossDeployer jbossDeployer = new JbossDeployer(new Server());
-        jbossDeployer.listToDeploy = [new File("file")]
+    void testDeployStandalone() {
+        def expected =
+                [
+                        'java',
+                        '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                        '-jar',
+                        '/path/to/jboss/home/jboss-modules.jar',
+                        '-mp',
+                        '/path/to/jboss/home/modules',
+                        'org.jboss.as.cli',
+                        '-c',
+                        '--command=deploy /path/to/file.jar --force --name=file.jar --runtime-name=file.jar'
+                ]
+
+        JbossDeployer jbossDeployer = new JbossDeployer(new Server(), '/path/to/jboss/home');
+        jbossDeployer.listToDeploy = [new File("/path/to/file.jar")]
         jbossDeployer.executor = new StubExecutor()
         jbossDeployer.deployList()
 
-        println(commandWithArgs)
-        println("zxzxzxzxzxxxx")
-        //throw  new RuntimeException()
+        Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(0), expected))
     }
 
-    class StubExecutor extends AbstractExecutor {
-        @Override
-        int execute(List<String> commandWithArgs_, File inputSource, File workingDirectory, String toProcessInput) {
-            commandWithArgs = commandWithArgs_
-            return 0
+    @Test
+    void testDeployDomain() {
+        def expected1 =
+                [
+                        'java',
+                        '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                        '-jar',
+                        '/path/to/jboss/home/jboss-modules.jar',
+                        '-mp',
+                        '/path/to/jboss/home/modules',
+                        'org.jboss.as.cli',
+                        '-c',
+                        '--command=deploy /path/to/file.jar --disabled --name=file.jar --runtime-name=file.jar'
+                ]
+
+        def expected2 =
+                [
+                        'java',
+                        '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                        '-jar',
+                        '/path/to/jboss/home/jboss-modules.jar',
+                        '-mp',
+                        '/path/to/jboss/home/modules',
+                        'org.jboss.as.cli',
+                        '-c',
+                        '--command=deploy --name=file.jar --server-groups=main-server-group'
+                ]
+
+
+        JbossDeployer jbossDeployer = new JbossDeployer(new Server(domain: true), '/path/to/jboss/home');
+        jbossDeployer.listToDeploy = [new File("/path/to/file.jar")]
+        jbossDeployer.executor = new StubExecutor()
+        jbossDeployer.deployList()
+
+        Assert.assertEquals(2, jbossDeployer.executor.executedCommands.size())
+
+        println 'Executed'
+        println(jbossDeployer.executor.executedCommands.get(0))
+        println(jbossDeployer.executor.executedCommands.get(1))
+        println()
+        println 'Expected'
+        println(expected1)
+
+        Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(0), expected1))
+        Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(1), expected2))
+    }
+
+    @Test
+    void testDeployDomain3ServerGroups() {
+        def expected1 =
+                [
+                        'java',
+                        '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                        '-jar',
+                        '/path/to/jboss/home/jboss-modules.jar',
+                        '-mp',
+                        '/path/to/jboss/home/modules',
+                        'org.jboss.as.cli',
+                        '-c',
+                        '--command=deploy /path/to/file.jar --disabled --name=file.jar --runtime-name=file.jar'
+                ]
+
+        def expected2 =
+                [
+                        'java',
+                        '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                        '-jar',
+                        '/path/to/jboss/home/jboss-modules.jar',
+                        '-mp',
+                        '/path/to/jboss/home/modules',
+                        'org.jboss.as.cli',
+                        '-c',
+                        '--command=deploy --name=file.jar --server-groups=g1,g2,g3'
+                ]
+
+
+        JbossDeployer jbossDeployer = new JbossDeployer(new Server(domain: true, domainServerGroups:['g1', 'g2', 'g3']), '/path/to/jboss/home');
+        jbossDeployer.listToDeploy = [new File("/path/to/file.jar")]
+        jbossDeployer.executor = new StubExecutor()
+        jbossDeployer.deployList()
+
+        Assert.assertEquals(2, jbossDeployer.executor.executedCommands.size())
+
+        println 'Executed'
+        println(jbossDeployer.executor.executedCommands.get(0))
+        println(jbossDeployer.executor.executedCommands.get(1))
+        println()
+        println 'Expected'
+        println(expected1)
+
+        Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(0), expected1))
+        Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(1), expected2))
+    }
+
+}
+
+class ListStringComparer{
+    static boolean compare(List list1, List list2){
+
+        for(int i=0; i<list1.size(); ++i){
+            if(!list1.get(i).toString().equals(list2.get(i).toString())){
+                //println("" +list1.get(i) + " "+ i)
+                return false
+            }
         }
+        return true
     }
 }
 
+class StubExecutor extends AbstractExecutor {
+    List<List<String>> executedCommands = []
+
+    @Override
+    int execute(List<String> commandWithArgs_, File inputSource, File workingDirectory, String toProcessInput) {
+        executedCommands.add commandWithArgs_
+        return 0
+    }
+}
