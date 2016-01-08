@@ -15,6 +15,11 @@ class JbossDeployerTest {
         jbossDeployerDomain.listToDeploy = [new File("/path/to/file.jar")]
         jbossDeployerDomain.executor = new StubExecutor()
 
+        JbossDeployer jbossDeployer3ServerGroups = new JbossDeployer(new Server(domain: true, domainServerGroups:['g1', 'g2', 'g3']), '/path/to/jboss/home');
+        jbossDeployer3ServerGroups.listToDeploy = [new File("/path/to/file.jar")]
+        jbossDeployer3ServerGroups.executor = new StubExecutor()
+
+
         return [
                 [
                         'localhost domain',
@@ -46,14 +51,37 @@ class JbossDeployerTest {
                 ],
 
 
-                //[ "two" ]
+                [
+                        "3 Server Groups",
+                        jbossDeployer3ServerGroups,
+                        [
+                                [
+                                    'java',
+                                    '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                                    '-jar',
+                                    '/path/to/jboss/home/jboss-modules.jar',
+                                    '-mp',
+                                    '/path/to/jboss/home/modules',
+                                    'org.jboss.as.cli',
+                                    '-c',
+                                    '--command=deploy /path/to/file.jar --disabled --name=file.jar --runtime-name=file.jar'
+                                ],
+                                [
+                                        'java',
+                                        '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                                        '-jar',
+                                        '/path/to/jboss/home/jboss-modules.jar',
+                                        '-mp',
+                                        '/path/to/jboss/home/modules',
+                                        'org.jboss.as.cli',
+                                        '-c',
+                                        '--command=deploy --name=file.jar --server-groups=g1,g2,g3'
+                                ]
+
+                        ]
+                ]
         ];
     }
-
-    /*@Test(dataProvider = "dataMethod")
-    public void testMethod(String param) {
-        System.out.println("The parameter value is: " + param);
-    }*/
 
     @Test
     void testDeployStandalone() {
@@ -96,53 +124,8 @@ class JbossDeployerTest {
 
         Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(0), expecteds.get(0)))
         Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(1), expecteds.get(1)))
-    }
-
-    @Test
-    void testDeployDomain3ServerGroups() {
-        def expected1 =
-                [
-                        'java',
-                        '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
-                        '-jar',
-                        '/path/to/jboss/home/jboss-modules.jar',
-                        '-mp',
-                        '/path/to/jboss/home/modules',
-                        'org.jboss.as.cli',
-                        '-c',
-                        '--command=deploy /path/to/file.jar --disabled --name=file.jar --runtime-name=file.jar'
-                ]
-
-        def expected2 =
-                [
-                        'java',
-                        '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
-                        '-jar',
-                        '/path/to/jboss/home/jboss-modules.jar',
-                        '-mp',
-                        '/path/to/jboss/home/modules',
-                        'org.jboss.as.cli',
-                        '-c',
-                        '--command=deploy --name=file.jar --server-groups=g1,g2,g3'
-                ]
-
-
-        JbossDeployer jbossDeployer = new JbossDeployer(new Server(domain: true, domainServerGroups:['g1', 'g2', 'g3']), '/path/to/jboss/home');
-        jbossDeployer.listToDeploy = [new File("/path/to/file.jar")]
-        jbossDeployer.executor = new StubExecutor()
-        jbossDeployer.deployList()
-
-        Assert.assertEquals(2, jbossDeployer.executor.executedCommands.size())
-
-        println 'Executed'
-        println(jbossDeployer.executor.executedCommands.get(0))
-        println(jbossDeployer.executor.executedCommands.get(1))
         println()
-        println 'Expected'
-        println(expected1)
-
-        Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(0), expected1))
-        Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(1), expected2))
+        println()
     }
 
 }
