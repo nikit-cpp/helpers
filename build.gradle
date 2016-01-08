@@ -6,7 +6,7 @@ subprojects {
     apply plugin: 'maven'
 
     project.group = 'com.github.nikit.cpp.helpers'
-    project.version = "1.0.4"
+    project.version = "1.0.5"
 
     [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
@@ -15,9 +15,12 @@ subprojects {
         mavenCentral()
     }
 
+    String credentials = 'credentials.properties'
     def props = new Properties()
-    if (new File('credentials.properties').exists()) {
-        props.load(new FileInputStream('credentials.properties'))
+    if (new File(credentials).exists()) {
+        props.load(new FileInputStream(credentials))
+    } else {
+        props = properties // ~/.gradle.properties
     }
     uploadArchives {
         repositories {

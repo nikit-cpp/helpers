@@ -6,4 +6,12 @@ package helpers
 class Artifact {
     String displayName
     String runtimeName
+
+    @Override
+    public String toString() {
+        return "Artifact{" +
+                "displayName='" + displayName + '\'' +
+                ", runtimeName='" + runtimeName + '\'' +
+                '}';
+    }
 }

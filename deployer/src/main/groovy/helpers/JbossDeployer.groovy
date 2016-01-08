@@ -5,6 +5,8 @@ import org.apache.commons.lang3.SystemUtils
 
 public class JbossDeployer {
 
+    public static final String MAIN_SERVER_GROUP = "main-server-group"
+
     File jBossBin
 
     /**
@@ -117,10 +119,31 @@ public class JbossDeployer {
         }
     }
 
+    String getArtifactsCommand(String serverGroup=null){
+        if (server.domain && (server.domainServerGroups==null || server.domainServerGroups.empty)){
+            serverGroup = MAIN_SERVER_GROUP
+        }
+
+        if (server.domain){
+            return "deployment-info --server-group=${serverGroup}"
+        } else {
+            return "deployment-info"
+        }
+    }
+
     void refreshArfifactsFromServer(){
         artifactsOnServer = []
+        List cmd = commonCommand.collect()
+        cmd.add(getArtifactsCommand())
+        ExecutorResult executorResult = executor.execute(commandWithArgs: cmd, workingDirectory: jBossBin, printOut: false)
 
-        // TODO make refresh
+        for (int i=1; i<executorResult.stdout.size(); ++i){
+            String outString = executorResult.stdout.get(i)
+
+            def splitted = outString.split('\\s+')
+            Artifact artifact = new Artifact(displayName: splitted[0], runtimeName: splitted[1])
+            artifactsOnServer << artifact
+        }
     }
 
     Artifact findOne(Closure<Boolean> closure){
@@ -161,7 +184,7 @@ public class JbossDeployer {
 
             def addToGroupCommand = commonCommand.collect()
             if (serverGroups.size() == 0) {
-                serverGroups << "main-server-group"
+                serverGroups << MAIN_SERVER_GROUP
             }
             String allServerGroups = ""
             int i = 0
