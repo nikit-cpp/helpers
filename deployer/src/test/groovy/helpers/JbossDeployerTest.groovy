@@ -16,6 +16,9 @@ class JbossDeployerTest {
         jbossStandaloneDeployer.listToDeploy = [new File("/path/to/file.jar")]
         jbossStandaloneDeployer.executor = new StubExecutor()
 
+        JbossDeployer jbossStandaloneRemoteDeployer = new JbossDeployer(new Server(hostname: '1.2.3.4', username: 'user1', password: 'pass1'), '/path/to/jboss/home');
+        jbossStandaloneRemoteDeployer.listToDeploy = [new File("/path/to/file.jar")]
+        jbossStandaloneRemoteDeployer.executor = new StubExecutor()
 
         JbossDeployer jbossDeployerDomain = new JbossDeployer(new Server(domain: true), '/path/to/jboss/home');
         jbossDeployerDomain.listToDeploy = [new File("/path/to/file.jar")]
@@ -44,6 +47,30 @@ class JbossDeployerTest {
                                 ]
                         ]
                 ],
+
+
+                [
+                        'remote standalone',
+                        jbossStandaloneRemoteDeployer,
+                        [
+                                [
+                                        'java',
+                                        '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                                        '-jar',
+                                        '/path/to/jboss/home/jboss-modules.jar',
+                                        '-mp',
+                                        '/path/to/jboss/home/modules',
+                                        'org.jboss.as.cli',
+                                        '-c',
+                                        '--controller=1.2.3.4:9990',
+                                        '--user=user1',
+                                        '--password=pass1',
+                                        '--command=deploy /path/to/file.jar --force --name=file.jar --runtime-name=file.jar'
+                                ]
+                        ]
+                ],
+
+
                 [
                         'localhost domain',
                         jbossDeployerDomain,
