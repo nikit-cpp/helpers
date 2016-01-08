@@ -146,7 +146,8 @@ class JbossDeployerTest {
                                                 '--command=deploy --name=file.jar --server-groups=main-server-group'
                                         ]
 
-                                ]]
+                                ]
+                        ]
                 ],
 
 
@@ -190,12 +191,12 @@ class JbossDeployerTest {
 
     @Test(dataProvider = "dataMethod")
     void testDeploy(String testName, JbossDeployer jbossDeployer, Map deployAndUndeployCommands) {
-        List<List<String>> expecteds = deployAndUndeployCommands.deploy
+        List<List<String>> expectedDeployCommands = deployAndUndeployCommands.deploy
         println("Testing \"${testName}\"")
 
         jbossDeployer.deployList()
 
-        Assert.assertEquals(expecteds.size(), jbossDeployer.executor.executedCommands.size())
+        Assert.assertEquals(expectedDeployCommands.size(), jbossDeployer.executor.executedCommands.size())
 
         println 'Executed:'
         for (def cmd : jbossDeployer.executor.executedCommands)
@@ -203,12 +204,12 @@ class JbossDeployerTest {
         println()
 
         println 'Expected:'
-        for (def cmd : expecteds) {
+        for (def cmd : expectedDeployCommands) {
             println(cmd)
         }
 
-        for (int i = 0; i < expecteds.size(); ++i) {
-            Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(i), expecteds.get(i)))
+        for (int i = 0; i < expectedDeployCommands.size(); ++i) {
+            Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(i), expectedDeployCommands.get(i)))
         }
         println()
         println()
