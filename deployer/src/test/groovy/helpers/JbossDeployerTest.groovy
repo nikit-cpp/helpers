@@ -14,23 +14,23 @@ class JbossDeployerTest {
 
         JbossDeployer jbossStandaloneDeployer = new JbossDeployer(new Server(), '/path/to/jboss/home');
         jbossStandaloneDeployer.listToDeploy = [new File("/path/to/file.jar")]
-        jbossStandaloneDeployer.executor = new StubExecutor()
+        jbossStandaloneDeployer.executor = new CaptureExecutor()
 
         JbossDeployer jbossStandaloneRemoteDeployer = new JbossDeployer(new Server(hostname: '1.2.3.4', port: 8888, username: 'user1', password: 'pass1'), '/path/to/jboss/home');
         jbossStandaloneRemoteDeployer.listToDeploy = [new File("/path/to/file.jar")]
-        jbossStandaloneRemoteDeployer.executor = new StubExecutor()
+        jbossStandaloneRemoteDeployer.executor = new CaptureExecutor()
 
         JbossDeployer jbossDeployerDomain = new JbossDeployer(new Server(domain: true), '/path/to/jboss/home');
         jbossDeployerDomain.listToDeploy = [new File("/path/to/file.jar")]
-        jbossDeployerDomain.executor = new StubExecutor()
+        jbossDeployerDomain.executor = new CaptureExecutor()
 
         JbossDeployer jbossDeployerRemoteDomain = new JbossDeployer(new Server(domain: true,hostname: '1.2.3.4', username: 'user1', password: 'pass1'), '/path/to/jboss/home');
         jbossDeployerRemoteDomain.listToDeploy = [new File("/path/to/file.jar")]
-        jbossDeployerRemoteDomain.executor = new StubExecutor()
+        jbossDeployerRemoteDomain.executor = new CaptureExecutor()
 
         JbossDeployer jbossDeployer3ServerGroups = new JbossDeployer(new Server(domain: true, domainServerGroups:['g1', 'g2', 'g3']), '/path/to/jboss/home');
-        jbossDeployer3ServerGroups.listToDeploy = [new File("/path/to/file.jar")]
-        jbossDeployer3ServerGroups.executor = new StubExecutor()
+        jbossDeployer3ServerGroups.listToDeploy = [new File("/path/to/file1.jar")]
+        jbossDeployer3ServerGroups.executor = new CaptureExecutor()
 
 
         return [
@@ -155,7 +155,7 @@ class JbossDeployerTest {
                                     '/path/to/jboss/home/modules',
                                     'org.jboss.as.cli',
                                     '-c',
-                                    '--command=deploy /path/to/file.jar --disabled --name=file.jar --runtime-name=file.jar'
+                                    '--command=deploy /path/to/file1.jar --disabled --name=file1.jar --runtime-name=file1.jar'
                                 ],
                                 [
                                         'java',
@@ -166,7 +166,7 @@ class JbossDeployerTest {
                                         '/path/to/jboss/home/modules',
                                         'org.jboss.as.cli',
                                         '-c',
-                                        '--command=deploy --name=file.jar --server-groups=g1,g2,g3'
+                                        '--command=deploy --name=file1.jar --server-groups=g1,g2,g3'
                                 ]
 
                         ]
@@ -215,7 +215,7 @@ class ListStringComparer{
     }
 }
 
-class StubExecutor extends AbstractExecutor {
+class CaptureExecutor extends AbstractExecutor {
     List<List<String>> executedCommands = []
 
     @Override
