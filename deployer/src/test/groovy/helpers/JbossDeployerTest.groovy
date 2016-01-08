@@ -16,7 +16,7 @@ class JbossDeployerTest {
         jbossStandaloneDeployer.listToDeploy = [new File("/path/to/file.jar")]
         jbossStandaloneDeployer.executor = new StubExecutor()
 
-        JbossDeployer jbossStandaloneRemoteDeployer = new JbossDeployer(new Server(hostname: '1.2.3.4', username: 'user1', password: 'pass1'), '/path/to/jboss/home');
+        JbossDeployer jbossStandaloneRemoteDeployer = new JbossDeployer(new Server(hostname: '1.2.3.4', port: 8888, username: 'user1', password: 'pass1'), '/path/to/jboss/home');
         jbossStandaloneRemoteDeployer.listToDeploy = [new File("/path/to/file.jar")]
         jbossStandaloneRemoteDeployer.executor = new StubExecutor()
 
@@ -66,7 +66,7 @@ class JbossDeployerTest {
                                         '/path/to/jboss/home/modules',
                                         'org.jboss.as.cli',
                                         '-c',
-                                        '--controller=1.2.3.4:9990',
+                                        '--controller=1.2.3.4:8888',
                                         '--user=user1',
                                         '--password=pass1',
                                         '--command=deploy /path/to/file.jar --force --name=file.jar --runtime-name=file.jar'
