@@ -62,6 +62,8 @@ public class JbossDeployer {
     Server server
     Closure createArtifactNamesClosure
 
+    def artifactsOnServer
+
     String getSystemJbossHome() {
         String jbossHome = System.getenv("WILDFLY_HOME")
         if (null == jbossHome) {
@@ -115,12 +117,31 @@ public class JbossDeployer {
         }
     }
 
+    void refreshArfifactsFromServer(){
+        artifactsOnServer = []
+
+        // TODO make refresh
+    }
+
+    Artifact findOne(Closure<Boolean> closure){
+        if (artifactsOnServer==null || artifactsOnServer.size==0){
+            refreshArfifactsFromServer()
+        }
+
+        for(Artifact m: artifactsOnServer){
+            if(closure(m)){
+                return m
+            }
+        }
+        return null
+    }
+
     void deploy(File artifact) {
         String runtimeName
         String displayName
         List<String> serverGroups = server.domainServerGroups.collect() // копируем список
         if (null != createArtifactNamesClosure) {
-            Map out = createArtifactNamesClosure(artifact)
+            Map out = createArtifactNamesClosure(this, artifact)
             runtimeName = out.runtimeName
             displayName = out.displayName
         } else {
@@ -164,7 +185,7 @@ public class JbossDeployer {
     void undeploy(File artifact) {
         String displayName
         if (null != createArtifactNamesClosure) {
-            displayName = createArtifactNamesClosure(artifact).displayName
+            displayName = createArtifactNamesClosure(this, artifact).undeployName
         } else {
             displayName = artifact.name
         }
