@@ -16,7 +16,7 @@ subprojects {
     }
 
     def props = new Properties()
-    if (new File(project.projectDir, 'credentials.properties').exists()) {
+    if (new File('credentials.properties').exists()) {
         props.load(new FileInputStream('credentials.properties'))
     }
     uploadArchives {
