@@ -115,8 +115,9 @@ public class JbossDeployer {
         String displayName
         List<String> serverGroups = server.domainServerGroups.collect() // копируем список
         if (null != createArtifactNamesClosure) {
-            runtimeName = createArtifactNamesClosure(artifact).runtimeName
-            displayName = createArtifactNamesClosure(artifact).displayName
+            Map out = createArtifactNamesClosure(artifact)
+            runtimeName = out.runtimeName
+            displayName = out.displayName
         } else {
             runtimeName = artifact.name
             displayName = artifact.name
