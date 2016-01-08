@@ -112,18 +112,21 @@ class JbossDeployerTest {
 
         jbossDeployer.deployList()
 
-        Assert.assertEquals(2, jbossDeployer.executor.executedCommands.size())
+        Assert.assertEquals(expecteds.size(), jbossDeployer.executor.executedCommands.size())
 
-        println 'Executed'
-        println(jbossDeployer.executor.executedCommands.get(0))
-        println(jbossDeployer.executor.executedCommands.get(1))
+        println 'Executed:'
+        for(def cmd: jbossDeployer.executor.executedCommands)
+            println(cmd)
         println()
-        println 'Expected'
-        println(expecteds.get(0))
-        println(expecteds.get(1))
 
-        Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(0), expecteds.get(0)))
-        Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(1), expecteds.get(1)))
+        println 'Expected:'
+        for(def cmd: expecteds) {
+            println(cmd)
+        }
+
+        for(int i=0; i<expecteds.size(); ++i) {
+            Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(i), expecteds.get(i)))
+        }
         println()
         println()
     }
