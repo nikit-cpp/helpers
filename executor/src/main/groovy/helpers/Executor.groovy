@@ -34,4 +34,10 @@ class Executor extends AbstractExecutor {
         }
         return exitCode
     }
+
+    public static int execute(Map args) {
+        Executor executor = new Executor()
+        return executor.execute(args.commandWithArgs, args.inputSource, args.workingDirectory, args.toProcessInput)
+    }
+
 }
