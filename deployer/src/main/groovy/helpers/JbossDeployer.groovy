@@ -53,6 +53,8 @@ public class JbossDeployer {
         println "Initialized JbossDeployer : ${server.domain?'domain':'standalone'}, ${server.local?'local':'remote ' + server.hostname}"
     }
 
+    AbstractExecutor executor = new Executor()
+
     List<File> listToDeploy = []
 
     def commonCommand
@@ -128,7 +130,7 @@ public class JbossDeployer {
         if(server.domain){
             def deployCommand = commonCommand.collect()
             deployCommand.add("--command=${getDomainDeployCommand(canonicalPath, displayName, runtimeName)}")
-            Executor.execute(commandWithArgs: deployCommand, workingDirectory: jBossBin)
+            executor.execute(commandWithArgs: deployCommand, workingDirectory: jBossBin)
 
             def addToGroupCommand = commonCommand.collect()
             if (serverGroups.size()==0){
@@ -145,11 +147,11 @@ public class JbossDeployer {
             }
             addToGroupCommand.add("--command=${getDomainAddToGroupCommand(displayName, allServerGroups)}")
             println "Adding ${displayName} to groups [${allServerGroups}]..."
-            Executor.execute(commandWithArgs: addToGroupCommand, workingDirectory: jBossBin)
+            executor.execute(commandWithArgs: addToGroupCommand, workingDirectory: jBossBin)
         } else {
             def deployList = commonCommand.collect()
             deployList.add("--command=${getStandaloneDeployCommand(canonicalPath, displayName, runtimeName)}")
-            Executor.execute(commandWithArgs: deployList, workingDirectory: jBossBin)
+            executor.execute(commandWithArgs: deployList, workingDirectory: jBossBin)
         }
     }
 
@@ -170,7 +172,7 @@ public class JbossDeployer {
         } else {
             undeployCommand.add("--command=${getStandaloneUndeployCommand(displayName)}")
         }
-        Executor.execute(commandWithArgs: undeployCommand, workingDirectory: jBossBin)
+        executor.execute(commandWithArgs: undeployCommand, workingDirectory: jBossBin)
     }
 
     void deployList() {
