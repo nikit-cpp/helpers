@@ -50,6 +50,19 @@ class JbossDeployerTest {
                                                 '-c',
                                                 '--command=deploy /path/to/file.jar --force --name=file.jar --runtime-name=file.jar'
                                         ]
+                                ],
+                                undeploy: [
+                                        [
+                                                'java',
+                                                '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                                                '-jar',
+                                                '/path/to/jboss/home/jboss-modules.jar',
+                                                '-mp',
+                                                '/path/to/jboss/home/modules',
+                                                'org.jboss.as.cli',
+                                                '-c',
+                                                '--command=undeploy file.jar'
+                                        ]
                                 ]
                         ]
                 ],
@@ -192,11 +205,22 @@ class JbossDeployerTest {
     @Test(dataProvider = "dataMethod")
     void testDeploy(String testName, JbossDeployer jbossDeployer, Map deployAndUndeployCommands) {
         List<List<String>> expectedDeployCommands = deployAndUndeployCommands.deploy
+        List<List<String>> expectedUndeployCommands = deployAndUndeployCommands.undeploy
         println("Testing \"${testName}\"")
 
-        jbossDeployer.deployList()
+        exec(jbossDeployer, expectedDeployCommands, true)
 
-        Assert.assertEquals(expectedDeployCommands.size(), jbossDeployer.executor.executedCommands.size())
+        if(null!=expectedUndeployCommands) {
+            exec(jbossDeployer, expectedUndeployCommands, false)
+        }
+    }
+
+    private void exec(JbossDeployer jbossDeployer, List<List<String>> expectedDeployCommands, boolean deplFlag) {
+        if(deplFlag) {
+            jbossDeployer.deployList()
+        } else {
+            jbossDeployer.undeployList()
+        }
 
         println 'Executed:'
         for (def cmd : jbossDeployer.executor.executedCommands)
@@ -213,6 +237,10 @@ class JbossDeployerTest {
         }
         println()
         println()
+
+        Assert.assertEquals(expectedDeployCommands.size(), jbossDeployer.executor.executedCommands.size())
+
+        jbossDeployer.executor.executedCommands = []
     }
 
 }
