@@ -24,6 +24,10 @@ class JbossDeployerTest {
         jbossDeployerDomain.listToDeploy = [new File("/path/to/file.jar")]
         jbossDeployerDomain.executor = new StubExecutor()
 
+        JbossDeployer jbossDeployerRemoteDomain = new JbossDeployer(new Server(domain: true,hostname: '1.2.3.4', username: 'user1', password: 'pass1'), '/path/to/jboss/home');
+        jbossDeployerRemoteDomain.listToDeploy = [new File("/path/to/file.jar")]
+        jbossDeployerRemoteDomain.executor = new StubExecutor()
+
         JbossDeployer jbossDeployer3ServerGroups = new JbossDeployer(new Server(domain: true, domainServerGroups:['g1', 'g2', 'g3']), '/path/to/jboss/home');
         jbossDeployer3ServerGroups.listToDeploy = [new File("/path/to/file.jar")]
         jbossDeployer3ServerGroups.executor = new StubExecutor()
@@ -99,6 +103,43 @@ class JbossDeployerTest {
                              ]
                         ]
                 ],
+
+
+                [
+                        'remote domain',
+                        jbossDeployerRemoteDomain,
+                        [
+                                [
+                                        'java',
+                                        '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                                        '-jar',
+                                        '/path/to/jboss/home/jboss-modules.jar',
+                                        '-mp',
+                                        '/path/to/jboss/home/modules',
+                                        'org.jboss.as.cli',
+                                        '-c',
+                                        '--controller=1.2.3.4:9990',
+                                        '--user=user1',
+                                        '--password=pass1',
+                                        '--command=deploy /path/to/file.jar --disabled --name=file.jar --runtime-name=file.jar'
+                                ],
+                                [
+                                        'java',
+                                        '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                                        '-jar',
+                                        '/path/to/jboss/home/jboss-modules.jar',
+                                        '-mp',
+                                        '/path/to/jboss/home/modules',
+                                        'org.jboss.as.cli',
+                                        '-c',
+                                        '--controller=1.2.3.4:9990',
+                                        '--user=user1',
+                                        '--password=pass1',
+                                        '--command=deploy --name=file.jar --server-groups=main-server-group'
+                                ]
+                        ]
+                ],
+
 
 
                 [
