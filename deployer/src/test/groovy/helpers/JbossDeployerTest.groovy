@@ -1,12 +1,58 @@
 package helpers
 
 import org.testng.Assert
+import org.testng.annotations.DataProvider
 import org.testng.annotations.Test
 
 /**
  * Created by nik on 08.01.16.
  */
 class JbossDeployerTest {
+
+    @DataProvider
+    public Object[][] dataMethod() {
+        JbossDeployer jbossDeployerDomain = new JbossDeployer(new Server(domain: true), '/path/to/jboss/home');
+        jbossDeployerDomain.listToDeploy = [new File("/path/to/file.jar")]
+        jbossDeployerDomain.executor = new StubExecutor()
+
+        return [
+                [
+                        jbossDeployerDomain,
+                        [
+                                [
+                                     'java',
+                                     '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                                     '-jar',
+                                     '/path/to/jboss/home/jboss-modules.jar',
+                                     '-mp',
+                                     '/path/to/jboss/home/modules',
+                                     'org.jboss.as.cli',
+                                     '-c',
+                                     '--command=deploy /path/to/file.jar --disabled --name=file.jar --runtime-name=file.jar'
+                             ],
+                             [
+                                     'java',
+                                     '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                                     '-jar',
+                                     '/path/to/jboss/home/jboss-modules.jar',
+                                     '-mp',
+                                     '/path/to/jboss/home/modules',
+                                     'org.jboss.as.cli',
+                                     '-c',
+                                     '--command=deploy --name=file.jar --server-groups=main-server-group'
+                             ]
+                        ]
+                ],
+
+
+                //[ "two" ]
+        ];
+    }
+
+    /*@Test(dataProvider = "dataMethod")
+    public void testMethod(String param) {
+        System.out.println("The parameter value is: " + param);
+    }*/
 
     @Test
     void testDeployStandalone() {
@@ -31,38 +77,9 @@ class JbossDeployerTest {
         Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(0), expected))
     }
 
-    @Test
-    void testDeployDomain() {
-        def expected1 =
-                [
-                        'java',
-                        '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
-                        '-jar',
-                        '/path/to/jboss/home/jboss-modules.jar',
-                        '-mp',
-                        '/path/to/jboss/home/modules',
-                        'org.jboss.as.cli',
-                        '-c',
-                        '--command=deploy /path/to/file.jar --disabled --name=file.jar --runtime-name=file.jar'
-                ]
+    @Test(dataProvider = "dataMethod")
+    void testDeployDomain(JbossDeployer jbossDeployer, List<List<String>> expecteds) {
 
-        def expected2 =
-                [
-                        'java',
-                        '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
-                        '-jar',
-                        '/path/to/jboss/home/jboss-modules.jar',
-                        '-mp',
-                        '/path/to/jboss/home/modules',
-                        'org.jboss.as.cli',
-                        '-c',
-                        '--command=deploy --name=file.jar --server-groups=main-server-group'
-                ]
-
-
-        JbossDeployer jbossDeployer = new JbossDeployer(new Server(domain: true), '/path/to/jboss/home');
-        jbossDeployer.listToDeploy = [new File("/path/to/file.jar")]
-        jbossDeployer.executor = new StubExecutor()
         jbossDeployer.deployList()
 
         Assert.assertEquals(2, jbossDeployer.executor.executedCommands.size())
@@ -72,10 +89,11 @@ class JbossDeployerTest {
         println(jbossDeployer.executor.executedCommands.get(1))
         println()
         println 'Expected'
-        println(expected1)
+        println(expecteds.get(0))
+        println(expecteds.get(1))
 
-        Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(0), expected1))
-        Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(1), expected2))
+        Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(0), expecteds.get(0)))
+        Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(1), expecteds.get(1)))
     }
 
     @Test
