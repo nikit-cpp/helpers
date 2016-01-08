@@ -1,5 +1,14 @@
 dependencies {
     compile 'org.codehaus.groovy:groovy:2.4.4'
     compile 'commons-io:commons-io:2.4'
+    compile 'org.apache.commons:commons-lang3:3.4'
     compile project(':executor')
+
+    testCompile 'org.testng:testng:6.9.4'
+    testCompile 'org.testinfected.hamcrest-matchers:core-matchers:1.8'
+}
+
+test {
+    // enable TestNG support (default is JUnit)
+    useTestNG()
 }
