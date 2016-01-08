@@ -17,6 +17,7 @@ class JbossDeployerTest {
 
         return [
                 [
+                        'localhost domain',
                         jbossDeployerDomain,
                         [
                                 [
@@ -78,7 +79,8 @@ class JbossDeployerTest {
     }
 
     @Test(dataProvider = "dataMethod")
-    void testDeployDomain(JbossDeployer jbossDeployer, List<List<String>> expecteds) {
+    void testDeployDomain(String testName, JbossDeployer jbossDeployer, List<List<String>> expecteds) {
+        println("Testing \"${testName}\"")
 
         jbossDeployer.deployList()
 
