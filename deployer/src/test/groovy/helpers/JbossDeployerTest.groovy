@@ -80,27 +80,27 @@ class JbossDeployerTest {
                         jbossDeployerDomain,
                         [
                                 [
-                                     'java',
-                                     '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
-                                     '-jar',
-                                     '/path/to/jboss/home/jboss-modules.jar',
-                                     '-mp',
-                                     '/path/to/jboss/home/modules',
-                                     'org.jboss.as.cli',
-                                     '-c',
-                                     '--command=deploy /path/to/file.jar --disabled --name=file.jar --runtime-name=file.jar'
-                             ],
-                             [
-                                     'java',
-                                     '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
-                                     '-jar',
-                                     '/path/to/jboss/home/jboss-modules.jar',
-                                     '-mp',
-                                     '/path/to/jboss/home/modules',
-                                     'org.jboss.as.cli',
-                                     '-c',
-                                     '--command=deploy --name=file.jar --server-groups=main-server-group'
-                             ]
+                                        'java',
+                                        '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                                        '-jar',
+                                        '/path/to/jboss/home/jboss-modules.jar',
+                                        '-mp',
+                                        '/path/to/jboss/home/modules',
+                                        'org.jboss.as.cli',
+                                        '-c',
+                                        '--command=deploy /path/to/file.jar --disabled --name=file.jar --runtime-name=file.jar'
+                                ],
+                                [
+                                        'java',
+                                        '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                                        '-jar',
+                                        '/path/to/jboss/home/jboss-modules.jar',
+                                        '-mp',
+                                        '/path/to/jboss/home/modules',
+                                        'org.jboss.as.cli',
+                                        '-c',
+                                        '--command=deploy --name=file.jar --server-groups=main-server-group'
+                                ]
                         ]
                 ],
 
