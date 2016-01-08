@@ -109,7 +109,7 @@ public class JbossDeployer {
 
     String escape(String file) {
         if (SystemUtils.IS_OS_WINDOWS){
-            return "\"${file}\""
+            return "\"\"${file}\"\""
         } else {
             return file.replace(" ", "\\ ")
         }
@@ -168,8 +168,6 @@ public class JbossDeployer {
         } else {
             displayName = artifact.name
         }
-
-        displayName = escape(displayName)
 
         println "Undeploying ${displayName} ..."
         def undeployCommand = commonCommand.collect()
