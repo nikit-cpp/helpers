@@ -11,6 +11,12 @@ class JbossDeployerTest {
 
     @DataProvider
     public Object[][] dataMethod() {
+
+        JbossDeployer jbossStandaloneDeployer = new JbossDeployer(new Server(), '/path/to/jboss/home');
+        jbossStandaloneDeployer.listToDeploy = [new File("/path/to/file.jar")]
+        jbossStandaloneDeployer.executor = new StubExecutor()
+
+
         JbossDeployer jbossDeployerDomain = new JbossDeployer(new Server(domain: true), '/path/to/jboss/home');
         jbossDeployerDomain.listToDeploy = [new File("/path/to/file.jar")]
         jbossDeployerDomain.executor = new StubExecutor()
@@ -21,6 +27,23 @@ class JbossDeployerTest {
 
 
         return [
+                [
+                        'localhost standalone',
+                        jbossStandaloneDeployer,
+                        [
+                                [
+                                        'java',
+                                        '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                                        '-jar',
+                                        '/path/to/jboss/home/jboss-modules.jar',
+                                        '-mp',
+                                        '/path/to/jboss/home/modules',
+                                        'org.jboss.as.cli',
+                                        '-c',
+                                        '--command=deploy /path/to/file.jar --force --name=file.jar --runtime-name=file.jar'
+                                ]
+                        ]
+                ],
                 [
                         'localhost domain',
                         jbossDeployerDomain,
@@ -83,31 +106,9 @@ class JbossDeployerTest {
         ];
     }
 
-    @Test
-    void testDeployStandalone() {
-        def expected =
-                [
-                        'java',
-                        '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
-                        '-jar',
-                        '/path/to/jboss/home/jboss-modules.jar',
-                        '-mp',
-                        '/path/to/jboss/home/modules',
-                        'org.jboss.as.cli',
-                        '-c',
-                        '--command=deploy /path/to/file.jar --force --name=file.jar --runtime-name=file.jar'
-                ]
-
-        JbossDeployer jbossDeployer = new JbossDeployer(new Server(), '/path/to/jboss/home');
-        jbossDeployer.listToDeploy = [new File("/path/to/file.jar")]
-        jbossDeployer.executor = new StubExecutor()
-        jbossDeployer.deployList()
-
-        Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(0), expected))
-    }
 
     @Test(dataProvider = "dataMethod")
-    void testDeployDomain(String testName, JbossDeployer jbossDeployer, List<List<String>> expecteds) {
+    void testDeploy(String testName, JbossDeployer jbossDeployer, List<List<String>> expecteds) {
         println("Testing \"${testName}\"")
 
         jbossDeployer.deployList()
