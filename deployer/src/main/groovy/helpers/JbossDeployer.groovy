@@ -9,13 +9,15 @@ public class JbossDeployer {
 
     File jBossBin
 
+    boolean force
+
     /**
      *
      * @param server Wilfdly сервер
      * @param createWilfdlyNameClosure замыкание, прнимающее файл артифакта "/path/to/jar-0.1.jar" и делающее из него
      * Wildfly displayName и runtimeName
      */
-    public JbossDeployer(Server server, String jbossHome = null, Closure createArtifactNamesClosure = null) {
+    public JbossDeployer(Server server, String jbossHome = null, Closure createArtifactNamesClosure = null, boolean force=false) {
         jbossHome = (jbossHome == null ? getSystemJbossHome() : jbossHome)
 
         File jBossModules = new File(jbossHome, "jboss-modules.jar")
@@ -59,6 +61,7 @@ public class JbossDeployer {
         }
 
         this.createArtifactNamesClosure = createArtifactNamesClosure
+        this.force = force
 
         println "Initialized JbossDeployer : ${server.domain ? 'domain' : 'standalone'}, ${server.local ? 'local' : 'remote ' + server.hostname}"
     }
@@ -106,16 +109,16 @@ public class JbossDeployer {
         return "undeploy ${nameInWildfly}"
     }
 
-    String getDomainDeployCommand(String pathToArtifact, String nameInWildfly, String runtimeName) {
-        return "deploy ${pathToArtifact} --disabled --name=${nameInWildfly} --runtime-name=${runtimeName}"
+    String getDomainDeployCommand(String pathToArtifact, String nameInWildfly, String runtimeName, boolean force) {
+        return "deploy ${pathToArtifact}${force==true?' --force':''} --name=${nameInWildfly} --runtime-name=${runtimeName}"
     }
 
     String getDomainAddToGroupCommand(String nameInWildfly, String serverGroupNames) {
         return "deploy --name=${nameInWildfly} --server-groups=${serverGroupNames}"
     }
 
-    String getStandaloneDeployCommand(String pathToArtifact, String nameInWildfly, String runtimeName) {
-        return "deploy ${pathToArtifact} --force --name=${nameInWildfly} --runtime-name=${runtimeName}"
+    String getStandaloneDeployCommand(String pathToArtifact, String nameInWildfly, String runtimeName, boolean force) {
+        return "deploy ${pathToArtifact}${force==true?' --force':''} --name=${nameInWildfly} --runtime-name=${runtimeName}"
     }
 
     String getStandaloneUndeployCommand(String nameInWildfly) {
@@ -196,7 +199,7 @@ public class JbossDeployer {
 
         if (server.domain) {
             def deployCommand = commonCommand.collect()
-            deployCommand.add("--command=${getDomainDeployCommand(canonicalPath, displayName, runtimeName)}")
+            deployCommand.add("--command=${getDomainDeployCommand(canonicalPath, displayName, runtimeName, force)}")
             executor.execute2(commandWithArgs: deployCommand, workingDirectory: jBossBin)
 
             def addToGroupCommand = commonCommand.collect()
@@ -214,7 +217,7 @@ public class JbossDeployer {
             executor.execute2(commandWithArgs: addToGroupCommand, workingDirectory: jBossBin)
         } else {
             def deployList = commonCommand.collect()
-            deployList.add("--command=${getStandaloneDeployCommand(canonicalPath, displayName, runtimeName)}")
+            deployList.add("--command=${getStandaloneDeployCommand(canonicalPath, displayName, runtimeName, force)}")
             executor.execute2(commandWithArgs: deployList, workingDirectory: jBossBin)
         }
     }

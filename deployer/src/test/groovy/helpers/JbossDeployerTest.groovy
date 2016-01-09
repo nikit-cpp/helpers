@@ -12,11 +12,11 @@ class JbossDeployerTest {
     @DataProvider
     public Object[][] dataMethod() {
 
-        JbossDeployer jbossStandaloneDeployer = new JbossDeployer(new Server(), '/path/to/jboss/home');
+        JbossDeployer jbossStandaloneDeployer = new JbossDeployer(new Server(), '/path/to/jboss/home', null, true);
         jbossStandaloneDeployer.listToDeploy = [new File("/path/to/file.jar")]
         jbossStandaloneDeployer.executor = new CaptureExecutor()
 
-        JbossDeployer jbossStandaloneRemoteDeployer = new JbossDeployer(new Server(hostname: '1.2.3.4', port: 8888, username: 'user1', password: 'pass1'), '/path/to/jboss/home');
+        JbossDeployer jbossStandaloneRemoteDeployer = new JbossDeployer(new Server(hostname: '1.2.3.4', port: 8888, username: 'user1', password: 'pass1'), '/path/to/jboss/home', null, true);
         jbossStandaloneRemoteDeployer.listToDeploy = [new File("/path/to/file.jar")]
         jbossStandaloneRemoteDeployer.executor = new CaptureExecutor()
 
@@ -105,7 +105,7 @@ class JbossDeployerTest {
                                                 '/path/to/jboss/home/modules',
                                                 'org.jboss.as.cli',
                                                 '-c',
-                                                '--command=deploy /path/to/file.jar --disabled --name=file.jar --runtime-name=file.jar'
+                                                '--command=deploy /path/to/file.jar --name=file.jar --runtime-name=file.jar'
                                         ],
                                         [
                                                 'java',
@@ -166,7 +166,7 @@ class JbossDeployerTest {
                                                 '--controller=1.2.3.4:9990',
                                                 '--user=user1',
                                                 '--password=pass1',
-                                                '--command=deploy /path/to/file.jar --disabled --name=file.jar --runtime-name=file.jar'
+                                                '--command=deploy /path/to/file.jar --name=file.jar --runtime-name=file.jar'
                                         ],
                                         [
                                                 'java',
@@ -204,7 +204,7 @@ class JbossDeployerTest {
                                                 '/path/to/jboss/home/modules',
                                                 'org.jboss.as.cli',
                                                 '-c',
-                                                '--command=deploy /path/to/file1.jar --disabled --name=file1.jar --runtime-name=file1.jar'
+                                                '--command=deploy /path/to/file1.jar --name=file1.jar --runtime-name=file1.jar'
                                         ],
                                         [
                                                 'java',
