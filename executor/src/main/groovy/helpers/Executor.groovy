@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets
  * Created by Nikita on 06.08.2015.
  */
 class Executor extends AbstractExecutor {
-    ExecutorResult execute2(List<String> commandWithArgs, File inputSource, File workingDirectory, String toProcessInput, boolean printOut) {
+    ExecutorResult execute2(List<String> commandWithArgs, File inputSource, File workingDirectory, String toProcessInput, boolean printOut, boolean checkExitcode) {
         ProcessBuilder pb = new ProcessBuilder()
         pb.command(commandWithArgs as String[])
         if (null != inputSource) {
@@ -29,14 +29,21 @@ class Executor extends AbstractExecutor {
         }
         int exitCode = process.waitFor()
 
-        if (0 != exitCode) {
+        if (0 != exitCode && checkExitcode) {
             throw new Exception("Exitcode:" + exitCode + " StdIn:" + process.in.text + " StdErr:" + process.err.text)
         }
         return new ExecutorResult(exitcode: exitCode, stdout: process.in.text.split('\n'), stderr: process.err.text.split('\n'))
     }
 
     public ExecutorResult execute2(Map args) {
-        return execute2(args.commandWithArgs, args.inputSource, args.workingDirectory, args.toProcessInput, (args.printOut==null) ? true : args.printOut)
+        return execute2(
+                args.commandWithArgs,
+                args.inputSource,
+                args.workingDirectory,
+                args.toProcessInput,
+                (args.printOut==null) ? true : args.printOut,
+                (args.checkExitcode==null) ? true : args.checkExitcode
+        )
     }
 
     /**
@@ -46,6 +53,13 @@ class Executor extends AbstractExecutor {
      */
     public static ExecutorResult execute(Map args) {
         Executor executor = new Executor()
-        return executor.execute2(args.commandWithArgs, args.inputSource, args.workingDirectory, args.toProcessInput, (args.printOut==null) ? true : args.printOut)
+        return executor.execute2(
+                args.commandWithArgs,
+                args.inputSource,
+                args.workingDirectory,
+                args.toProcessInput,
+                (args.printOut==null) ? true : args.printOut,
+                (args.checkExitcode==null) ? true : args.checkExitcode
+        )
     }
 }

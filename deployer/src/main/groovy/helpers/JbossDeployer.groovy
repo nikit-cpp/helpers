@@ -91,8 +91,12 @@ public class JbossDeployer {
     }
 
 
+    String getDomainRemoveFromServerGroupCommand(String nameInWildfly, String serverGroup) {
+        return "/server-group=${serverGroup}/deployment=${nameInWildfly}:remove"
+    }
+
     String getDomainUndeployCommand(String nameInWildfly) {
-        return "undeploy ${nameInWildfly} --all-relevant-server-groups"
+        return "undeploy ${nameInWildfly}"
     }
 
     String getDomainDeployCommand(String pathToArtifact, String nameInWildfly, String runtimeName) {
@@ -159,7 +163,7 @@ public class JbossDeployer {
         Artifact a = null;
         for(Artifact m: artifactsOnServer){
             if(closure(m)){
-                if(a!=null){
+                if(a!=null && a.serverGroup==m.serverGroup){
                     throw new NotUniqueException("Previously found ${a}")
                 }
                 a=m
@@ -222,14 +226,35 @@ public class JbossDeployer {
             displayName = artifact.name
         }
 
-        println "Undeploying ${displayName} ..."
-        def undeployCommand = commonCommand.collect()
         if (server.domain) {
-            undeployCommand.add("--command=${getDomainUndeployCommand(displayName)}")
-        } else {
-            undeployCommand.add("--command=${getStandaloneUndeployCommand(displayName)}")
+            for(String group: server.domainServerGroups) {
+                try {
+                    println "Removing ${displayName} from server-group ${group} ..."
+                    def undeployCommand = commonCommand.collect()
+                    undeployCommand.add("--command=${getDomainRemoveFromServerGroupCommand(displayName, group)}")
+                    executor.execute2(commandWithArgs: undeployCommand, workingDirectory: jBossBin, printOut:false)
+                } catch (Exception e){
+                    println("Error on removing ${displayName} from server-group ${group}")
+                }
+            } // for
+            try {
+                println "Undeploying ${displayName} ..."
+                def undeployCommand = commonCommand.collect()
+                undeployCommand.add("--command=${getDomainUndeployCommand(displayName)}")
+                executor.execute2(commandWithArgs: undeployCommand, workingDirectory: jBossBin, printOut:false)
+            } catch (Exception e){
+                println("Error on undeploying ${displayName} from content-repository")
+            }
+        } else { // standalone
+            try {
+                println "Undeploying ${displayName} ..."
+                def undeployCommand = commonCommand.collect()
+                undeployCommand.add("--command=${getStandaloneUndeployCommand(displayName)}")
+                executor.execute2(commandWithArgs: undeployCommand, workingDirectory: jBossBin, printOut:false)
+            } catch (Exception e){
+                println("Error on undeploying ${displayName} from content-repository")
+            }
         }
-        executor.execute2(commandWithArgs: undeployCommand, workingDirectory: jBossBin)
     }
 
     void deployList() {
