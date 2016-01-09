@@ -129,7 +129,7 @@ class JbossDeployerTest {
                                                 '/path/to/jboss/home/modules',
                                                 'org.jboss.as.cli',
                                                 '-c',
-                                                '--command=undeploy file.jar --all-relevant-server-groups'
+                                                '--command=undeploy file.jar'
                                         ]
                                 ]
                         ]
@@ -207,7 +207,55 @@ class JbossDeployerTest {
                                                 '--command=deploy --name=file1.jar --server-groups=g1,g2,g3'
                                         ]
 
+                                ],
+                                undeploy: [
+                                        [
+                                                'java',
+                                                '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                                                '-jar',
+                                                '/path/to/jboss/home/jboss-modules.jar',
+                                                '-mp',
+                                                '/path/to/jboss/home/modules',
+                                                'org.jboss.as.cli',
+                                                '-c',
+                                                '--command=/server-group=g1/deployment=file1.jar:remove'
+                                        ],
+                                        [
+                                                'java',
+                                                '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                                                '-jar',
+                                                '/path/to/jboss/home/jboss-modules.jar',
+                                                '-mp',
+                                                '/path/to/jboss/home/modules',
+                                                'org.jboss.as.cli',
+                                                '-c',
+                                                '--command=/server-group=g2/deployment=file1.jar:remove'
+                                        ],
+                                        [
+                                                'java',
+                                                '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                                                '-jar',
+                                                '/path/to/jboss/home/jboss-modules.jar',
+                                                '-mp',
+                                                '/path/to/jboss/home/modules',
+                                                'org.jboss.as.cli',
+                                                '-c',
+                                                '--command=/server-group=g3/deployment=file1.jar:remove'
+                                        ],
+                                        [
+                                                'java',
+                                                '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                                                '-jar',
+                                                '/path/to/jboss/home/jboss-modules.jar',
+                                                '-mp',
+                                                '/path/to/jboss/home/modules',
+                                                'org.jboss.as.cli',
+                                                '-c',
+                                                '--command=undeploy file1.jar'
+                                        ]
+
                                 ]
+
                         ]
                 ]
         ]
@@ -275,7 +323,7 @@ class CaptureExecutor extends AbstractExecutor {
     List<List<String>> executedCommands = []
 
     @Override
-    ExecutorResult execute2(List<String> commandWithArgs_, File inputSource, File workingDirectory, String toProcessInput, boolean unused) {
+    ExecutorResult execute2(List<String> commandWithArgs_, File inputSource, File workingDirectory, String toProcessInput, boolean unused, boolean unused2) {
         executedCommands.add commandWithArgs_
         return null
     }
