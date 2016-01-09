@@ -282,7 +282,7 @@ class CaptureExecutor extends AbstractExecutor {
 
     @Override
     ExecutorResult execute2(Map args) {
-        // unused
+        executedCommands.add args.commandWithArgs
         return null
     }
 }
