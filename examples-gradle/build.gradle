@@ -1,0 +1,4 @@
+dependencies {
+    compile project(':deployer')
+    compile project(':db')
+}

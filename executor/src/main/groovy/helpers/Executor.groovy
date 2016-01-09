@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets
  * Created by Nikita on 06.08.2015.
  */
 class Executor extends AbstractExecutor {
-    ExecutorResult execute(List<String> commandWithArgs, File inputSource, File workingDirectory, String toProcessInput, boolean printOut) {
+    ExecutorResult execute2(List<String> commandWithArgs, File inputSource, File workingDirectory, String toProcessInput, boolean printOut) {
         ProcessBuilder pb = new ProcessBuilder()
         pb.command(commandWithArgs as String[])
         if (null != inputSource) {
@@ -24,8 +24,6 @@ class Executor extends AbstractExecutor {
             inputToProcess.close()
         }
 
-        // TODO разобраться почему без этого mongorestore не закрывается
-        // судя по ошибкам, которые видны при закрытии mongorestore через taskmanager в монге где-то генерятся _id, и из-за отсутствия чтения эга генерация происходит слишком быстро из-за чего дважды генерятся одинаковые id
         if (printOut) {
             process.consumeProcessOutput(System.out, System.err)
         }
@@ -37,9 +35,17 @@ class Executor extends AbstractExecutor {
         return new ExecutorResult(exitcode: exitCode, stdout: process.in.text.split('\n'), stderr: process.err.text.split('\n'))
     }
 
-    public static ExecutorResult execute(Map args) {
-        Executor executor = new Executor()
-        return executor.execute(args.commandWithArgs, args.inputSource, args.workingDirectory, args.toProcessInput, args.printOut)
+    public ExecutorResult execute2(Map args) {
+        return execute2(args.commandWithArgs, args.inputSource, args.workingDirectory, args.toProcessInput, args.printOut)
     }
 
+    /**
+     * Compatibility method
+     * @param args
+     * @return
+     */
+    public static ExecutorResult execute(Map args) {
+        Executor executor = new Executor()
+        return executor.execute2(args.commandWithArgs, args.inputSource, args.workingDirectory, args.toProcessInput, (args.printOut==null) ? true : args.printOut)
+    }
 }

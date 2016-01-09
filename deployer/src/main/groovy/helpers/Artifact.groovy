@@ -6,12 +6,13 @@ package helpers
 class Artifact {
     String displayName
     String runtimeName
-
+    String serverGroup // only in domain
     @Override
     public String toString() {
         return "Artifact{" +
                 "displayName='" + displayName + '\'' +
                 ", runtimeName='" + runtimeName + '\'' +
+                ", serverGroup='" + serverGroup + '\'' +
                 '}';
     }
 }

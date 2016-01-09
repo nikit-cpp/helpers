@@ -275,8 +275,14 @@ class CaptureExecutor extends AbstractExecutor {
     List<List<String>> executedCommands = []
 
     @Override
-    int execute(List<String> commandWithArgs_, File inputSource, File workingDirectory, String toProcessInput) {
+    ExecutorResult execute2(List<String> commandWithArgs_, File inputSource, File workingDirectory, String toProcessInput, boolean unused) {
         executedCommands.add commandWithArgs_
-        return 0
+        return null
+    }
+
+    @Override
+    ExecutorResult execute2(Map args) {
+        // unused
+        return null
     }
 }

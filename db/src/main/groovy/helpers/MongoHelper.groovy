@@ -4,6 +4,20 @@ package helpers
  * Created by Nikita on 13.08.2015.
  */
 class MongoHelper {
+    public static dropAndRestore(Mongo mongo) {
+        def ptchs = []
+        if (null != mongo.patches) {
+            for (String pp : mongo.patches) {
+                ptchs.add(new File(pp))
+            }
+        }
+        File dump = null
+        if (null!=mongo.dumpFolder){
+            dump = new File(mongo.dumpFolder)
+        }
+        dropAndRestore(mongo.mongoHost, mongo.port, mongo.dbName, dump, ptchs as File[])
+    }
+
     /**
      *
      * @param host Хост с монгой, на который будет восстановлен дамп
@@ -45,6 +59,9 @@ class MongoHelper {
             println "mongo ${dbName} at ${host} successfully restored"
         }
 
+        if(null == patches){
+            return
+        }
         for (File file : patches) {
             def patchCommand = commonPart.collect()
             patchCommand.add(file.absolutePath)

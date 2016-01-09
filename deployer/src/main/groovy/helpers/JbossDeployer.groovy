@@ -119,10 +119,7 @@ public class JbossDeployer {
         }
     }
 
-    String getArtifactsCommand(String serverGroup=null){
-        if (server.domain && (server.domainServerGroups==null || server.domainServerGroups.empty)){
-            serverGroup = MAIN_SERVER_GROUP
-        }
+    String getArtifactsCommand(String serverGroup){
 
         if (server.domain){
             return "deployment-info --server-group=${serverGroup}"
@@ -133,30 +130,42 @@ public class JbossDeployer {
 
     void refreshArfifactsFromServer(){
         artifactsOnServer = []
-        List cmd = commonCommand.collect()
-        cmd.add(getArtifactsCommand())
-        ExecutorResult executorResult = executor.execute(commandWithArgs: cmd, workingDirectory: jBossBin, printOut: false)
 
-        for (int i=1; i<executorResult.stdout.size(); ++i){
-            String outString = executorResult.stdout.get(i)
+        List<String> serverGroups = server.getDomainServerGroups()
+        if (server.domainServerGroups==null || server.domainServerGroups.empty) {
+            serverGroups << MAIN_SERVER_GROUP
+        }
 
-            def splitted = outString.split('\\s+')
-            Artifact artifact = new Artifact(displayName: splitted[0], runtimeName: splitted[1])
-            artifactsOnServer << artifact
+        for(String group: serverGroups) {
+            List cmd = commonCommand.collect()
+            cmd.add(getArtifactsCommand(group))
+            ExecutorResult executorResult = executor.execute2(commandWithArgs: cmd, workingDirectory: jBossBin, printOut: false)
+
+            for (int i=1; i<executorResult.stdout.size(); ++i){
+                String outString = executorResult.stdout.get(i)
+
+                def splitted = outString.split('\\s+')
+                Artifact artifact = new Artifact(displayName: splitted[0], runtimeName: splitted[1], serverGroup: group)
+                artifactsOnServer << artifact
+            }
         }
     }
 
-    Artifact findOne(Closure<Boolean> closure){
+    Artifact findOne(Closure<Boolean> closure) throws NotUniqueException {
         if (artifactsOnServer==null || artifactsOnServer.size==0){
             refreshArfifactsFromServer()
         }
 
+        Artifact a = null;
         for(Artifact m: artifactsOnServer){
             if(closure(m)){
-                return m
+                if(a!=null){
+                    throw new NotUniqueException("Previously found ${a}")
+                }
+                a=m
             }
         }
-        return null
+        return a
     }
 
     void deploy(File artifact) {
@@ -180,7 +189,7 @@ public class JbossDeployer {
         if (server.domain) {
             def deployCommand = commonCommand.collect()
             deployCommand.add("--command=${getDomainDeployCommand(canonicalPath, displayName, runtimeName)}")
-            executor.execute(commandWithArgs: deployCommand, workingDirectory: jBossBin)
+            executor.execute2(commandWithArgs: deployCommand, workingDirectory: jBossBin)
 
             def addToGroupCommand = commonCommand.collect()
             if (serverGroups.size() == 0) {
@@ -197,11 +206,11 @@ public class JbossDeployer {
             }
             addToGroupCommand.add("--command=${getDomainAddToGroupCommand(displayName, allServerGroups)}")
             println "Adding ${displayName} to groups [${allServerGroups}]..."
-            executor.execute(commandWithArgs: addToGroupCommand, workingDirectory: jBossBin)
+            executor.execute2(commandWithArgs: addToGroupCommand, workingDirectory: jBossBin)
         } else {
             def deployList = commonCommand.collect()
             deployList.add("--command=${getStandaloneDeployCommand(canonicalPath, displayName, runtimeName)}")
-            executor.execute(commandWithArgs: deployList, workingDirectory: jBossBin)
+            executor.execute2(commandWithArgs: deployList, workingDirectory: jBossBin)
         }
     }
 
@@ -220,7 +229,7 @@ public class JbossDeployer {
         } else {
             undeployCommand.add("--command=${getStandaloneUndeployCommand(displayName)}")
         }
-        executor.execute(commandWithArgs: undeployCommand, workingDirectory: jBossBin)
+        executor.execute2(commandWithArgs: undeployCommand, workingDirectory: jBossBin)
     }
 
     void deployList() {
