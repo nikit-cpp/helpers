@@ -105,7 +105,7 @@ class JbossDeployerTest {
                                                 '/path/to/jboss/home/modules',
                                                 'org.jboss.as.cli',
                                                 '-c',
-                                                '--command=deploy /path/to/file.jar --name=file.jar --runtime-name=file.jar'
+                                                '--command=deploy /path/to/file.jar --disabled --name=file.jar --runtime-name=file.jar'
                                         ],
                                         [
                                                 'java',
@@ -166,7 +166,7 @@ class JbossDeployerTest {
                                                 '--controller=1.2.3.4:9990',
                                                 '--user=user1',
                                                 '--password=pass1',
-                                                '--command=deploy /path/to/file.jar --name=file.jar --runtime-name=file.jar'
+                                                '--command=deploy /path/to/file.jar --disabled --name=file.jar --runtime-name=file.jar'
                                         ],
                                         [
                                                 'java',
@@ -204,7 +204,7 @@ class JbossDeployerTest {
                                                 '/path/to/jboss/home/modules',
                                                 'org.jboss.as.cli',
                                                 '-c',
-                                                '--command=deploy /path/to/file1.jar --name=file1.jar --runtime-name=file1.jar'
+                                                '--command=deploy /path/to/file1.jar --disabled --name=file1.jar --runtime-name=file1.jar'
                                         ],
                                         [
                                                 'java',

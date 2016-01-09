@@ -2,7 +2,7 @@
 @GrabResolver(name="local", root="~/.m2/repository/", m2Compatible=true)
 // grapes are stored in ~/.groovy/grapes/
 @Grapes(
-        @Grab(group='com.github.nikit.cpp.helpers', module='deployer', version='1.0.5')
+        @Grab(group='com.github.nikit.cpp.helpers', module='deployer', version='1.0.6')
 )
 
 helpers.Server server = new helpers.Server()

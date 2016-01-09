@@ -110,7 +110,7 @@ public class JbossDeployer {
     }
 
     String getDomainDeployCommand(String pathToArtifact, String nameInWildfly, String runtimeName, boolean force) {
-        return "deploy ${pathToArtifact}${force==true?' --force':''} --name=${nameInWildfly} --runtime-name=${runtimeName}"
+        return "deploy ${pathToArtifact}${force==true?' --force':''} --disabled --name=${nameInWildfly} --runtime-name=${runtimeName}"
     }
 
     String getDomainAddToGroupCommand(String nameInWildfly, String serverGroupNames) {
