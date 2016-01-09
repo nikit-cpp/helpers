@@ -51,6 +51,13 @@ public class JbossDeployer {
         }
 
         this.server = server
+
+        if(server.domain) {
+            if (server.domainServerGroups.size() == 0) {
+                server.domainServerGroups << MAIN_SERVER_GROUP
+            }
+        }
+
         this.createArtifactNamesClosure = createArtifactNamesClosure
 
         println "Initialized JbossDeployer : ${server.domain ? 'domain' : 'standalone'}, ${server.local ? 'local' : 'remote ' + server.hostname}"
@@ -136,9 +143,6 @@ public class JbossDeployer {
         artifactsOnServer = []
 
         List<String> serverGroups = server.getDomainServerGroups()
-        if (server.domainServerGroups==null || server.domainServerGroups.empty) {
-            serverGroups << MAIN_SERVER_GROUP
-        }
 
         for(String group: serverGroups) {
             List cmd = commonCommand.collect()
@@ -196,9 +200,6 @@ public class JbossDeployer {
             executor.execute2(commandWithArgs: deployCommand, workingDirectory: jBossBin)
 
             def addToGroupCommand = commonCommand.collect()
-            if (serverGroups.size() == 0) {
-                serverGroups << MAIN_SERVER_GROUP
-            }
             String allServerGroups = ""
             int i = 0
             for (String serverGroup : serverGroups) {

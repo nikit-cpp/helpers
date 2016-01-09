@@ -129,6 +129,17 @@ class JbossDeployerTest {
                                                 '/path/to/jboss/home/modules',
                                                 'org.jboss.as.cli',
                                                 '-c',
+                                                '--command=/server-group=main-server-group/deployment=file.jar:remove'
+                                        ],
+                                        [
+                                                'java',
+                                                '-Dlogging.configuration=file:/path/to/jboss/home/bin/jboss-cli-logging.properties',
+                                                '-jar',
+                                                '/path/to/jboss/home/jboss-modules.jar',
+                                                '-mp',
+                                                '/path/to/jboss/home/modules',
+                                                'org.jboss.as.cli',
+                                                '-c',
                                                 '--command=undeploy file.jar'
                                         ]
                                 ]
@@ -267,6 +278,8 @@ class JbossDeployerTest {
     void testDeploy(String testName, JbossDeployer jbossDeployer, Map deployAndUndeployCommands) {
         List<List<String>> expectedDeployCommands = deployAndUndeployCommands.deploy
         List<List<String>> expectedUndeployCommands = deployAndUndeployCommands.undeploy
+
+        println("="*20)
         println("Testing \"${testName}\"")
 
         exec(jbossDeployer, expectedDeployCommands, true)
@@ -274,6 +287,8 @@ class JbossDeployerTest {
         if(null!=expectedUndeployCommands) {
             exec(jbossDeployer, expectedUndeployCommands, false)
         }
+        println("="*20)
+        println()
     }
 
     private void exec(JbossDeployer jbossDeployer, List<List<String>> expectedDeployCommands, boolean deplFlag) {
@@ -296,7 +311,6 @@ class JbossDeployerTest {
         for (int i = 0; i < expectedDeployCommands.size(); ++i) {
             Assert.assertTrue(ListStringComparer.compare(jbossDeployer.executor.executedCommands.get(i), expectedDeployCommands.get(i)))
         }
-        println()
         println()
 
         Assert.assertEquals(expectedDeployCommands.size(), jbossDeployer.executor.executedCommands.size())
