@@ -147,6 +147,11 @@ public class JbossDeployer {
 
         List<String> serverGroups = server.getDomainServerGroups()
 
+        // for standalone
+        if(serverGroups.empty){
+            serverGroups = [MAIN_SERVER_GROUP]
+        }
+
         for(String group: serverGroups) {
             List cmd = commonCommand.collect()
             cmd.add(getArtifactsCommand(group))
