@@ -36,7 +36,7 @@ class Executor extends AbstractExecutor {
     }
 
     public ExecutorResult execute2(Map args) {
-        return execute2(args.commandWithArgs, args.inputSource, args.workingDirectory, args.toProcessInput, args.printOut)
+        return execute2(args.commandWithArgs, args.inputSource, args.workingDirectory, args.toProcessInput, (args.printOut==null) ? true : args.printOut)
     }
 
     /**
