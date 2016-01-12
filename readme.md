@@ -10,7 +10,7 @@ Put
 ```groovy
 @GrabResolver(name='nikita', root='https://dl.bintray.com/nikit007/mvn-repo/')
 @Grapes(
-    @Grab(group='com.github.nikit.cpp.helpers', module='deployer', version='1.0.6')
+    @Grab(group='com.github.nikit.cpp.helpers', module='deployer', version='1.0.7')
 )
 
 helpers.Server server = new helpers.Server()
