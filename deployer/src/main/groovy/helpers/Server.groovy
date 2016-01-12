@@ -14,4 +14,6 @@ class Server {
     List<String> domainServerGroups = []
 
     boolean isLocal() { return hostname == null }
+
+    String deployFile
 }

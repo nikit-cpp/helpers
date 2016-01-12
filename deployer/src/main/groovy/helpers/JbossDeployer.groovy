@@ -14,7 +14,7 @@ public class JbossDeployer {
     /**
      *
      * @param server Wilfdly сервер
-     * @param createWilfdlyNameClosure замыкание, прнимающее файл артифакта "/path/to/jar-0.1.jar" и делающее из него
+     * @param createWilfdlyNameClosure замыкание, принимающее файл артифакта "/path/to/jar-0.1.jar" и делающее из него
      * Wildfly displayName и runtimeName
      */
     public JbossDeployer(Server server, String jbossHome = null, Closure createArtifactNamesClosure = null, boolean force=false) {
@@ -100,6 +100,15 @@ public class JbossDeployer {
         }
     }
 
+    public void prepareForDeploy(String globalPathToDeployList) {
+        String pathToDeployList = null
+        if (server.deployFile != null) {
+            pathToDeployList = server.deployFile
+        } else {
+            pathToDeployList = globalPathToDeployList
+        }
+        readFile(pathToDeployList)
+    }
 
     String getDomainRemoveFromServerGroupCommand(String nameInWildfly, String serverGroup) {
         return "/server-group=${serverGroup}/deployment=${nameInWildfly}:remove"
